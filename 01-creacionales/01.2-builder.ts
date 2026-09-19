@@ -38,68 +38,127 @@ import { COLORS } from '../helpers/colors.ts';
 
 //! Solución
 
-class QueryBuilder {
-  private table: string;
-  private fields: string[] = [];
-  private conditions: string[] = [];
-  private orderFields: string[] = [];
-  private limitCount?: number;
+type ComparasionOperator = "=" | ">" | "<" | ">=" | "<=" | "!=" | "LIKE" | "IN" | "NOT IN" | "BETWEEN" | "NOT BETWEEN" | "IS NULL" | "IS NOT NULL";
 
-  constructor(table: string) {
-    this.table = table;
-  }
-
-  select(...fields: string[]): QueryBuilder {
-    this.fields = fields;
-    return this;
-  }
-
-  where(condition: string): QueryBuilder {
-    this.conditions.push(condition);
-    return this;
-  }
-
-  orderBy(field: string, direction: 'ASC' | 'DESC' = 'ASC'): QueryBuilder {
-    this.orderFields.push(`order by ${field} ${direction}`);
-    return this;
-  }
-
-  limit(count: number): QueryBuilder {
-    this.limitCount = count;
-    return this;
-  }
-
-  execute(): string {
-    const fields = this.fields.length > 0 ? this.fields.join(', ') : '*';
-
-    const whereClause =
-      this.conditions.length > 0
-        ? `WHERE ${this.conditions.join(' AND ')}`
-        : ' ';
-
-    const orderByClause =
-      this.orderFields.length > 0
-        ? `ORDER BY ${this.orderFields.join(', ')}`
-        : '';
-
-    const limitClause = this.limitCount ? `LIMIT ${this.limitCount}` : '';
-
-    return `Select ${fields} from ${this.table} ${whereClause} ${orderByClause} ${limitClause}`;
-  }
+interface Condition {
+  field: string;
+  operator: ComparasionOperator; 
+  value: string | number;
 }
 
-function main() {
-  const usersQuery = new QueryBuilder('users')
-    .select('id', 'name', 'email')
-    .where('age > 20')
-    // .where("country = 'CHI'") // Esto debe de hacer una condición AND
-    .orderBy('name', 'ASC')
-    .orderBy('age', 'DESC')
-    .limit(100)
-    .execute();
+interface orderBy {
+  field: string;
+  order: "ASC" | "DESC";
+}
 
-  console.log('%cConsulta:\n', COLORS.red);
-  console.log(usersQuery);
+type whereClause =  | Condition | { AND: Condition[] } | { OR: Condition[] };
+
+/**
+ * Este es el plano del Query
+ */
+class Query {
+
+  public table: string = "";
+  public fields: string[] = [];
+  public conditions?: whereClause;
+  public order?: orderBy;
+  public limit?: number;
+
+
+  execute() {
+    console.log(`
+      SELECT ${this.fields.length > 0 ? this.fields.join(", ") : "*" }
+      FROM ${this.table}
+      ${(this.conditions) && `WHERE ${this.compileClause(this.conditions)}`}
+      ${this.order ? `ORDER BY ${this.order.field} ${this.order.order}` : ""}
+      ${this.limit ? `LIMIT ${this.limit}` : ""}
+    `);
+  }
+
+  private compileClause(clause: whereClause): string {
+    if('AND' in clause) {
+      return clause.AND.map(condition => `${condition.field} ${condition.operator} ${condition.value}`).join(" AND ");
+    }
+    if('OR' in clause) {
+      return clause.OR.map(condition => `${condition.field} ${condition.operator} ${condition.value}`).join(" OR ");
+    }
+    return `${clause.field} ${clause.operator} ${clause.value}`;
+  }
+
+}
+
+
+/**
+ * Constructor para la query*/
+class QueryBuilder {
+  
+  private query: Query;
+
+  constructor() {
+    this.query = new Query()
+  }
+
+  setTable(table: string): QueryBuilder {
+    this.query.table = table;
+    return this;
+  }
+
+  select(fields: string[]): QueryBuilder {
+    this.query.fields = fields;
+    return this;
+  }
+
+  where(conditions: whereClause): QueryBuilder {
+    this.query.conditions = conditions;
+    return this;
+  } 
+  
+  orderBy(conditions: orderBy): QueryBuilder {
+    this.query.order = conditions;
+    return this;
+  } 
+  
+  limit(limit: number): QueryBuilder {
+    this.query.limit = limit;
+    return this;
+  } 
+
+  build() {
+    return this.query;
+  }
+  
+
+}
+
+
+function main() {
+
+  const usersQuery = new QueryBuilder().
+    setTable("users")
+    .select(["id","name","email","age"])
+    .where({ AND: [
+      {  field: "age", operator: ">", value: 18 }
+    ]})
+    .orderBy({ field: "name", order: "ASC" })
+    .limit(10)
+    .build();
+  
+  usersQuery.execute();
+
+  const query = new QueryBuilder()
+  .setTable('users')
+  .select(['id', 'name'])
+  .where({
+    AND: [{ field: 'age', operator: '>', value: 18 }],
+    OR: [
+      { field: 'country', operator: '=', value: 'CRI' },
+      { field: 'country', operator: '=', value: 'MEX' },
+    ]}
+  )
+  .build();
+
+  query.execute();
+
 }
 
 main();

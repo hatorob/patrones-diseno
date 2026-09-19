@@ -1,0 +1,28 @@
+{
+  "name": "patrones-diseno",
+  "version": "1.0.0",
+  "description": "El código está escrito en TypeScript y usamos Deno para ejecutarlo, puedes usar Bun o Node si lo prefieres.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "tsx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hatorob/patrones-diseno.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hatorob/patrones-diseno/issues"
+  },
+  "homepage": "https://github.com/hatorob/patrones-diseno#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}
