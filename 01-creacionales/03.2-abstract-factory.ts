@@ -31,8 +31,9 @@ import { COLORS } from '../helpers/colors.ts';
 
  */
 // 1. Interfaces de Vehicle y Engine
-interface Vehicle {
-  assemble(): void;
+
+interface Vehicule {
+  ensemble(): void;
 }
 
 interface Engine {
@@ -41,71 +42,71 @@ interface Engine {
 
 // 2. Clases Concretas de Productos
 
-class ElectricCar implements Vehicle {
-  assemble(): void {
-    console.log('Ensamblando un auto %celéctrico', COLORS.blue);
+class ElectricCar implements Vehicule {
+  ensemble(): void {
+    console.log("Ensamblando un auto eléctrico");
   }
 }
 
-class GasCar implements Vehicle {
-  assemble(): void {
-    console.log('Ensamblando un auto de %ccombustión', COLORS.brown);
+class GasCar implements Vehicule {
+  ensemble(): void {
+    console.log("Ensamblando un auto de combustión");
   }
 }
 
 class ElectricEngine implements Engine {
   start(): void {
-    console.log('Arrancando motor %celéctrico', COLORS.blue);
+    console.log("Arrancando motor eléctrico");
   }
 }
 
 class GasEngine implements Engine {
   start(): void {
-    console.log('Arrancando motor de %ccombustión', COLORS.brown);
+    console.log("Arrancando motor de combustión");
   }
 }
 
+
 // 3. Interfaz de la Fábrica Abstracta
 
-interface VehicleFactory {
-  createVehicle(): Vehicle;
+interface VehiculeFactory {
+  createVehicule(): Vehicule;
   createEngine(): Engine;
 }
 
 // 4. Clases Concretas de Fábricas
-class ElectricVehicleFactory implements VehicleFactory {
-  createVehicle(): Vehicle {
+
+class ElectricVehiculeFactory implements VehiculeFactory {
+  createVehicule(): Vehicule {
     return new ElectricCar();
   }
-
   createEngine(): Engine {
     return new ElectricEngine();
   }
 }
 
-class GasVehicleFactory implements VehicleFactory {
-  createVehicle(): Vehicle {
+class GasVehiculeFactory implements VehiculeFactory {
+  createVehicule(): Vehicule {
     return new GasCar();
   }
   createEngine(): Engine {
     return new GasEngine();
   }
-  // Implementación de los métodos createVehicle y createEngine
 }
 
 // 5. Código Cliente
-
-function main(factory: VehicleFactory) {
-  const vehicle = factory.createVehicle();
+function main(factory: VehiculeFactory) {
+  const vehicle = factory.createVehicule();
   const engine = factory.createEngine();
 
-  vehicle.assemble();
+  vehicle.ensemble();
   engine.start();
 }
 
-// Pruebas
-console.log('Creando vehículo eléctrico:');
-main(new ElectricVehicleFactory());
+console.log('\n%cVehiculo eléctrico:', COLORS.green);
+main(new ElectricVehiculeFactory());
 
-console.log('\nCreando vehículo de combustión:');
-main(new GasVehicleFactory());
+console.log('\n\n%cVehiculo de combustión:', COLORS.green);
+main(new GasVehiculeFactory());
+// Pruebas
+
