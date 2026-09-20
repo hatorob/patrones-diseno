@@ -27,6 +27,7 @@
 import { COLORS } from '../helpers/colors.ts';
 
 // 1. Definir la interfaz Report
+
 interface Report {
   generate(): void;
 }
@@ -36,55 +37,81 @@ interface Report {
 
 class SalesReport implements Report {
   generate(): void {
-    console.log('%cGenerando reporte de ventas...', COLORS.green);
+    console.log("Generando reporte de ventas")
   }
 }
 
 class InventoryReport implements Report {
   generate(): void {
-    console.log('%cGenerando reporte de inventario...', COLORS.orange);
+    console.log("Generando reporte de inventario")
   }
 }
+
+class PaymentsReport implements Report {
+  generate(): void {
+    console.log("Generando reporte de pagos")
+  }
+}
+
 
 // 3. Clase Base ReportFactory con el Método Factory
 
-abstract class ReportFactory {
-  protected abstract createReport(): Report;
+abstract class ReportCreator {
+    abstract createReport(): Report;
 
-  generateReport(): void {
-    const report = this.createReport();
-    report.generate();
-  }
+    getReport(): void {
+      const report = this.createReport();
+      report.generate();
+    }
 }
+
 
 // 4. Clases Concretas de Fábricas de Reportes
 
-class SalesReportFactory extends ReportFactory {
+class SalesReportCreator extends ReportCreator {
   createReport(): Report {
     return new SalesReport();
   }
 }
 
-class InventoryReportFactory extends ReportFactory {
+class InventoryReportCreator extends ReportCreator {
   createReport(): Report {
     return new InventoryReport();
   }
 }
 
-// 5. Código Cliente para Probar
-
-function main() {
-  let reportFactory: ReportFactory;
-
-  const reportType = prompt('¿Qué tipo de reporte deseas? (sales/inventory)');
-
-  if (reportType === 'sales') {
-    reportFactory = new SalesReportFactory();
-  } else {
-    reportFactory = new InventoryReportFactory();
+class PaymentsReportCreator extends ReportCreator {
+  createReport(): Report {
+    return new PaymentsReport();
   }
-
-  reportFactory.generateReport();
 }
 
-main();
+
+// 5. Código Cliente para Probar
+
+
+let main = (reportType: string) => {
+
+  let report;
+
+  switch(reportType) {
+    case 'sales':
+      report = new SalesReportCreator();
+      break;
+    case 'inventory':
+      report = new InventoryReportCreator();
+      break;
+    case 'payments':
+      report = new PaymentsReportCreator();
+      break;
+  }
+
+  if (report) {
+    report.getReport();
+  }
+
+}
+
+main('sales');
+main('inventory');
+main('payments');

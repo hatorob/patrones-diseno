@@ -51,7 +51,7 @@ interface orderBy {
   order: "ASC" | "DESC";
 }
 
-type whereClause =  | Condition | { AND: Condition[] } | { OR: Condition[] };
+type whereClause =  | Condition | { AND: whereClause[] } | { OR: whereClause[] };
 
 /**
  * Este es el plano del Query
@@ -65,22 +65,22 @@ class Query {
   public limit?: number;
 
 
-  execute() {
-    console.log(`
+  execute(): string {
+     return `
       SELECT ${this.fields.length > 0 ? this.fields.join(", ") : "*" }
       FROM ${this.table}
       ${(this.conditions) && `WHERE ${this.compileClause(this.conditions)}`}
       ${this.order ? `ORDER BY ${this.order.field} ${this.order.order}` : ""}
       ${this.limit ? `LIMIT ${this.limit}` : ""}
-    `);
+    `;
   }
 
   private compileClause(clause: whereClause): string {
     if('AND' in clause) {
-      return clause.AND.map(condition => `${condition.field} ${condition.operator} ${condition.value}`).join(" AND ");
+      return clause.AND.map(c => this.compileClause(c)).join(" AND ");
     }
     if('OR' in clause) {
-      return clause.OR.map(condition => `${condition.field} ${condition.operator} ${condition.value}`).join(" OR ");
+      return `(${clause.OR.map(c => this.compileClause(c)).join(" OR ")})`;
     }
     return `${clause.field} ${clause.operator} ${clause.value}`;
   }
@@ -123,8 +123,17 @@ class QueryBuilder {
     return this;
   } 
 
+  /**
+   * sin protección
+   * */
   build() {
     return this.query;
+  }
+
+  /**
+   * Con protección, para que no se pueda modificar la query después de construirla
+   * */  buildProtected(): Readonly<Query> {
+    return Object.freeze(this.query);
   }
   
 
@@ -143,21 +152,23 @@ function main() {
     .limit(10)
     .build();
   
-  usersQuery.execute();
+  console.log(usersQuery.execute());
 
   const query = new QueryBuilder()
   .setTable('users')
   .select(['id', 'name'])
   .where({
-    AND: [{ field: 'age', operator: '>', value: 18 }],
-    OR: [
-      { field: 'country', operator: '=', value: 'CRI' },
-      { field: 'country', operator: '=', value: 'MEX' },
-    ]}
-  )
+    AND: [
+      { field: 'age', operator: '>', value: 18 },
+      { OR: [
+          { field: 'country', operator: '=', value: 'CRI' },
+          { field: 'country', operator: '=', value: 'MEX' },
+        ] },
+    ],
+  })
   .build();
 
-  query.execute();
+  console.log(query.execute());
 
 }
 
