@@ -49,21 +49,28 @@ class Pokemon {
 // 3. Llamar a displayInfo en cada Pokémon para mostrar sus detalles.
 
 // Ejemplo:
-function main() {
-  const basePokemon = new Pokemon('Charmander', 'Fuego', 1, [
-    'Llamarada',
-    'Arañazo',
-  ]);
-  const clone1 = basePokemon.clone();
-  clone1.name = 'Charmeleon';
-  clone1.level = 16;
-  clone1.attacks.push('Lanzallamas');
 
-  console.log('%cCharmander', COLORS.red);
-  basePokemon.displayInfo(); // Aquí no debe de aparecer "Lanzallamas"
+const pikachu = new Pokemon(
+  "Pikachu",
+  "Eléctrico",
+  222,
+  [
+    "Impactrueno",
+    "Onda Trueno",
+    "Ataque Rápido"
+  ]
+);
 
-  console.log('%cCharmeleon', COLORS.pink);
-  clone1.displayInfo();
-}
-
-main();
+console.log("pokemon 1");
+pikachu.displayInfo();
+console.log("pokemon 2");
+const charizard = pikachu.clone();
+charizard.name = "Charizard";
+charizard.level = 200;
+charizard.type = "Fuego";
+charizard.attacks = [
+  "Lanzallamas",
+  "Garra Dragón",
+  "Vuelo"
+];
+charizard.displayInfo();
